@@ -1,0 +1,5 @@
+Revision history for Perl extension MooseX-Attribute-ENV.
+	
+0.01    07 June 2008
+        - Setup repository, created application skeleton
+        - Created tests, released.
