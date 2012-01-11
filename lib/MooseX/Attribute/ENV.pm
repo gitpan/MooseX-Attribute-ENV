@@ -2,7 +2,7 @@ package MooseX::Attribute::ENV;
 
 use Moose::Role;
 
-our $VERSION = "0.01";
+our $VERSION = "0.02";
 our $AUTHORITY = 'cpan:JJNAPIORK';
 
 =head1 NAME
@@ -14,38 +14,38 @@ MooseX::Attribute::ENV - Set default of an attribute to a value from %ENV
 The following is example usage for this attribute trait.
 
 	package MyApp::MyClass;
-	
+
 	use Moose;
 	use MooseX::Attribute::ENV;
-	
+
 	## Checks $ENV{username} and $ENV{USERNAME}
 	has 'username' => (
 		traits => ['ENV'],
 	);
-	
+
 	## Checks $ENV{GLOBAL_PASSWORD}
 	has 'password' => (
-		traits => ['ENV'], 
+		traits => ['ENV'],
 		env_key => 'GLOBAL_PASSWORD',
 	);
-	
+
 	## Checks $ENV{last_login}, $ENV{LAST_LOGIN} and then uses the default
 	has 'last_login' => (
 		traits => ['ENV'],
 		default => sub {localtime},
 	);
-	
-	## Checks $ENV{XXX_config_name} and $ENV{XXX_CONFIG_NAME}	
+
+	## Checks $ENV{XXX_config_name} and $ENV{XXX_CONFIG_NAME}
 	has 'config_name' => (
 		traits => ['ENV'],
 		env_prefix => 'XXX',
 	);
-	
-	## Checks $ENV{MyApp_MyClass_extra} and $ENV{MYAPP_MYCLASS_EXTRA}	
+
+	## Checks $ENV{MyApp_MyClass_extra} and $ENV{MYAPP_MYCLASS_EXTRA}
 	has 'extra' => (
 		traits => ['ENV'],
 		env_package_prefix => 1,
-	);	
+	);
 
 Please see the test cases for more detailed examples.
 
@@ -56,16 +56,16 @@ for an attribute to be populated from the %ENV hash.  So, for example if you
 have set the environment variable USERNAME = 'John' you can do:
 
 	package MyApp::MyClass;
-	
+
 	use Moose;
 	use MooseX::Attribute::ENV;
-	
+
 	has 'username' => (is=>'ro', traits=>['ENV']);
-	
+
 	package main;
-	
+
 	my $myclass = MyApp::MyClass->new();
-	
+
 	print $myclass->username; # STDOUT => 'John';
 
 This is basically similar functionality to something like:
@@ -152,37 +152,37 @@ Overload method so that we can assign the default to be what's in %ENV
 around '_process_options' => sub
 {
     my ($_process_options, $self, $name, $options) = (shift, @_);
-    
+
     ## get some stuff we need.
 	my $key = $options->{env_key} || $name;
 	my $default = $options->{default};
 	my $use_pp = $options->{env_package_prefix};
-	
+
 	## Make it lazy if we are using the package prefix option
 	if( defined $use_pp && $use_pp )
 	{
 		$options->{lazy} = 1;
 	}
-	
+
 	## Prepend any custom prefixes.
 	if($options->{env_prefix})
 	{
-		$key = join('_', ($options->{env_prefix}, $key));	
+		$key = join('_', ($options->{env_prefix}, $key));
 	}
-	
+
 	## override/update the default method for this attribute.
 	CHECK_ENV: {
-		
+
 		$options->{default} = sub {
-				
+
 			if(defined $use_pp && $use_pp)
 			{
 				my $class = blessed $_[0];
 				$class =~s/::/_/g;
-					
+
 				$key = join ('_', ($class, $key));
 			}
-			
+
 			## Wish we could use perl 5.10 given instead :)
 			if(defined $ENV{$key})
 			{
@@ -196,8 +196,6 @@ around '_process_options' => sub
 			{
 				return ref $default eq 'CODE' ? $default->(@_) : $default;
 			}
-				
-			return;
 		};
 	}
 
@@ -218,7 +216,7 @@ or through the web interface at:
 
 	L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=MooseX-Attribute-ENV>
 
-I will be notified, and then you'll automatically be notified of progress on 
+I will be notified, and then you'll automatically be notified of progress on
 your bug as I make changes.
 
 =head1 SUPPORT
